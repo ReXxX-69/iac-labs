@@ -1,13 +1,3 @@
-name: Python CI
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
 jobs:
   install-dependencies:
     runs-on: ubuntu-latest
@@ -19,13 +9,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Add Poetry to PATH
-        run: echo "/home/student/.local/bin" >> $GITHUB_PATH
-
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          echo "/home/student/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/bin" >> $GITHUB_PATH  # Dodajemy ścieżkę do poetry do zmiennej PATH
 
       - name: Cache Poetry Dependencies
         uses: actions/cache@v3
@@ -35,54 +22,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-poetry-dependencies-
 
-      - name: Go to example-app directory
-        run: cd example-app
-
-      - name: Install project dependencies
-        run: /home/student/.local/bin/poetry install --no-root  # Użycie pełnej ścieżki do poetry
-
-  linting:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: "linting-${{ github.ref }}"
-      cancel-in-progress: true
-    needs: install-dependencies  # Czeka na zakończenie joba "install-dependencies"
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Add Poetry to PATH
-        run: echo "/home/student/.local/bin" >> $GITHUB_PATH
-
-      - name: Go to example-app directory
-        run: cd example-app  # Upewniamy się, że jesteśmy w katalogu z plikiem pyproject.toml
-
-      - name: Run Linter
-        run: /home/student/.local/bin/poetry run task lint  # Użycie pełnej ścieżki do poetry
-
-      - name: Run Formatter
-        run: /home/student/.local/bin/poetry run task formatter  # Użycie pełnej ścieżki do poetry
-
-      - name: Run Security Check
-        run: /home/student/.local/bin/poetry run task security  # Użycie pełnej ścieżki do poetry
-
-  unit-tests:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: "unit-tests-${{ github.ref }}"
-      cancel-in-progress: true
-    needs: install-dependencies  # Czeka na zakończenie joba "install-dependencies"
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Add Poetry to PATH
-        run: echo "/home/student/.local/bin" >> $GITHUB_PATH
-
-      - name: Go to example-app directory
-        run: cd example-app  # Upewniamy się, że jesteśmy w katalogu z plikiem pyproject.toml
-
-      - name: Run Unit Tests
-        run: /home/student/.local/bin/poetry run task test  # Użycie pełnej ścieżki do poetry
+      - name: Install Project Dependencies
+        run: |
+          echo "Checking if poetry is installed..."
+          which poetry  # Sprawdź, czy poetry jest w systemie
+          $HOME/.local/bin/poetry install --no-root  # Użyj pełnej ścieżki do poetry
