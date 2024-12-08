@@ -28,8 +28,8 @@ jobs:
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
         echo "Poetry installed at: $HOME/.local/bin/poetry"
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        $HOME/.local/bin/poetry --version
+        echo "/home/student/.local/bin" >> $GITHUB_PATH
+        /home/student/.local/bin/poetry --version
 
     - name: Cache Poetry dependencies
       uses: actions/cache@v3
