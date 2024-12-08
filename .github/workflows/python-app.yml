@@ -24,12 +24,16 @@ jobs:
       with:
         python-version: '3.9'
 
-    - name: Install Poetry
+    - name: Install Poetry and add it to PATH
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
         echo "Poetry installed at: $HOME/.local/bin/poetry"
-        export PATH="$HOME/.local/bin:$PATH"  # Dodajemy Poetry do PATH
-        poetry --version  # Sprawdzamy, czy Poetry jest dostępne
+        echo "Adding Poetry to PATH"
+        export PATH="$HOME/.local/bin:$PATH"
+        echo "Poetry installed at: $HOME/.local/bin"
+        poetry --version  # Sprawdzamy, czy Poetry jest zainstalowane
+        # Dodajemy PATH do środowiska, aby było dostępne w dalszych krokach
+        echo "PATH=$PATH" >> $GITHUB_ENV
 
     - name: Cache Poetry dependencies
       uses: actions/cache@v3
@@ -40,9 +44,8 @@ jobs:
           ${{ runner.os }}-venv-
 
     - name: Install project dependencies
-      working-directory: ./example-app  # <-- Przechodzimy do katalogu projektu
-      run: |
-        poetry install --no-root
+      working-directory: ./example-app
+      run: poetry install --no-root
 
   static_analysis:
     runs-on: ubuntu-latest
@@ -61,21 +64,18 @@ jobs:
         python-version: '3.9'
 
     - name: Run linting
-      working-directory: ./example-app  # <-- Przechodzimy do katalogu projektu
+      working-directory: ./example-app
       run: |
-        export PATH="$HOME/.local/bin:$PATH"  # Dodajemy Poetry do PATH przed jego użyciem
         poetry run task lint
 
     - name: Run formatter
       working-directory: ./example-app
       run: |
-        export PATH="$HOME/.local/bin:$PATH"  # Dodajemy Poetry do PATH przed jego użyciem
         poetry run task formatter
 
     - name: Run security checks
       working-directory: ./example-app
       run: |
-        export PATH="$HOME/.local/bin:$PATH"  # Dodajemy Poetry do PATH przed jego użyciem
         poetry run task security
 
   unit_tests:
@@ -95,7 +95,6 @@ jobs:
         python-version: '3.9'
 
     - name: Run unit tests
-      working-directory: ./example-app  # <-- Przechodzimy do katalogu projektu
+      working-directory: ./example-app
       run: |
-        export PATH="$HOME/.local/bin:$PATH"  # Dodajemy Poetry do PATH przed jego użyciem
         poetry run task test
