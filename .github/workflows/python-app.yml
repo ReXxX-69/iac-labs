@@ -9,7 +9,6 @@ on:
       - main
 
 jobs:
-  # Job do instalacji Poetry i zależności
   install_dependencies:
     runs-on: ubuntu-latest
     concurrency:
@@ -43,15 +42,14 @@ jobs:
     - name: Install project dependencies
       working-directory: ./example-app
       run: |
-        poetry install --no-root
+        $HOME/.local/bin/poetry install --no-root
 
-  # Job do testów statycznych
   static_analysis:
     runs-on: ubuntu-latest
     concurrency:
       group: 'static-analysis'
       cancel-in-progress: true
-    needs: install_dependencies  # Czeka na zakończenie instalacji zależności
+    needs: install_dependencies
 
     steps:
     - name: Checkout code
@@ -65,25 +63,24 @@ jobs:
     - name: Run linting
       working-directory: ./example-app
       run: |
-        poetry run task lint
+        $HOME/.local/bin/poetry run task lint
 
     - name: Run formatter
       working-directory: ./example-app
       run: |
-        poetry run task formatter
+        $HOME/.local/bin/poetry run task formatter
 
     - name: Run security checks
       working-directory: ./example-app
       run: |
-        poetry run task security
+        $HOME/.local/bin/poetry run task security
 
-  # Job do testów jednostkowych
   unit_tests:
     runs-on: ubuntu-latest
     concurrency:
       group: 'unit-tests'
       cancel-in-progress: true
-    needs: install_dependencies  # Czeka na zakończenie instalacji zależności
+    needs: install_dependencies
 
     steps:
     - name: Checkout code
@@ -97,4 +94,4 @@ jobs:
     - name: Run unit tests
       working-directory: ./example-app
       run: |
-        poetry run task test
+        $HOME/.local/bin/poetry run task test
