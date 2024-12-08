@@ -10,20 +10,30 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}  # Wybór systemu operacyjnego z matrix
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]  # Testowanie na Ubuntu i Windows
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: bash  # Użycie powłoki bash na wszystkich systemach, w tym Windows
         working-directory: ./example-app
+        shell: bash
     steps:
-      - uses: actions/checkout@v4
-      - name: set up python3.11
-        uses: actions/checkout@v3
-        with:
-          python-version: "3.11"
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+    - name: Install Poetry
+      uses: snok/install-poetry@v1.3.4
+    - name: Install Poetry Deps
+      run: poetry install --no-root
+    - name: Cache build venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: /home/runner/work/iac-labs/iac-labs/example-app/.venv
+        key: ${{ runner.os }}-venv
 
       # Krok 2: Instalacja Poetry
       - name: Install Poetry
