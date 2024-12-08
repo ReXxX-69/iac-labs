@@ -26,15 +26,16 @@ jobs:
 
     - name: Install Poetry
       run: |
+        # Instalacja Poetry
         curl -sSL https://install.python-poetry.org | python3 -
-        
-        # Sprawdzamy wersję Poetry
-        $HOME/.local/bin/poetry --version
-        
-        # Dodajemy Poetry do zmiennej PATH
-        echo "Poetry installed at: $HOME/.local/bin/poetry"
-        echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
 
+        # Sprawdzamy wersję Poetry
+        echo "Poetry installed at: $HOME/.local/bin/poetry"
+        $HOME/.local/bin/poetry --version
+
+        # Dodajemy Poetry do zmiennej PATH
+        echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+        
     - name: Cache Poetry dependencies
       uses: actions/cache@v3
       with:
@@ -46,7 +47,7 @@ jobs:
     - name: Install project dependencies
       working-directory: ./example-app
       run: |
-        # Upewniamy się, że Poetry jest w PATH i zainstalowane
+        # Upewniamy się, że Poetry jest w PATH
         echo "PATH=$PATH"
         poetry install --no-root
 
