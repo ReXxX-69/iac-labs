@@ -9,6 +9,7 @@ on:
       - main
 
 jobs:
+  # Job do instalacji Poetry i zależności
   install_dependencies:
     runs-on: ubuntu-latest
     concurrency:
@@ -28,10 +29,8 @@ jobs:
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
         echo "Poetry installed at: $HOME/.local/bin/poetry"
-        # Potwierdzenie wersji Poetry
-        $HOME/.local/bin/poetry --version
-        # Dodanie Poetry do ścieżki środowiska
         echo "$HOME/.local/bin" >> $GITHUB_PATH
+        $HOME/.local/bin/poetry --version
 
     - name: Cache Poetry dependencies
       uses: actions/cache@v3
@@ -45,3 +44,57 @@ jobs:
       working-directory: ./example-app
       run: |
         poetry install --no-root
+
+  # Job do testów statycznych
+  static_analysis:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: 'static-analysis'
+      cancel-in-progress: true
+    needs: install_dependencies  # Czeka na zakończenie instalacji zależności
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Run linting
+      working-directory: ./example-app
+      run: |
+        poetry run task lint
+
+    - name: Run formatter
+      working-directory: ./example-app
+      run: |
+        poetry run task formatter
+
+    - name: Run security checks
+      working-directory: ./example-app
+      run: |
+        poetry run task security
+
+  # Job do testów jednostkowych
+  unit_tests:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: 'unit-tests'
+      cancel-in-progress: true
+    needs: install_dependencies  # Czeka na zakończenie instalacji zależności
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Run unit tests
+      working-directory: ./example-app
+      run: |
+        poetry run task test
