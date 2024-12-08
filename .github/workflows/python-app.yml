@@ -9,11 +9,11 @@ on:
       - main
 
 jobs:
-  test:
+  install_dependencies:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./example-app
+    concurrency:
+      group: 'install-dependencies'
+      cancel-in-progress: true
 
     steps:
     - name: Checkout code
@@ -27,14 +27,57 @@ jobs:
     - name: Install Poetry
       uses: abatilo/actions-poetry@v2
 
-    - name: Install dependencies
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v3
+      with:
+        path: ./example-app/.venv
+        key: ${{ runner.os }}-venv-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-venv-
+
+    - name: Install project dependencies
       run: poetry install --no-root
 
-    - name: Run tests
-      run: poetry run task test
+  static_analysis:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: 'static-analysis'
+      cancel-in-progress: true
+    needs: install_dependencies  # To make sure install_dependencies completes before static_analysis
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
 
     - name: Run linting
       run: poetry run task lint
 
+    - name: Run formatter
+      run: poetry run task formatter
+
     - name: Run security checks
       run: poetry run task security
+
+  unit_tests:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: 'unit-tests'
+      cancel-in-progress: true
+    needs: install_dependencies  # Ensure dependencies are installed before running tests
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Run unit tests
+      run: poetry run task test
