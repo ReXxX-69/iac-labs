@@ -10,9 +10,13 @@ on:
 
 jobs:
   build:
-    runs-on: Ubuntu-latest
+    runs-on: ${{ matrix.os }}  # Wybór systemu operacyjnego z matrix
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]  # Testowanie na Ubuntu i Windows
     defaults:
       run:
+        shell: bash  # Użycie powłoki bash na wszystkich systemach, w tym Windows
         working-directory: ./example-app
     steps:
       - uses: actions/checkout@v4
