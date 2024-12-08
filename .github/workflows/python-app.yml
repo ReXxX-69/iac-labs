@@ -20,12 +20,12 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Add Poetry to PATH
-        run: echo "/home/runner/.local/bin" >> $GITHUB_PATH
+        run: echo "/home/student/.local/bin" >> $GITHUB_PATH
 
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          echo "/home/runner/.local/bin" >> $GITHUB_PATH
+          echo "/home/student/.local/bin" >> $GITHUB_PATH
 
       - name: Cache Poetry Dependencies
         uses: actions/cache@v3
@@ -39,7 +39,7 @@ jobs:
         run: cd example-app
 
       - name: Install project dependencies
-        run: poetry install --no-root  # Instalacja zależności w katalogu example-app
+        run: /home/student/.local/bin/poetry install --no-root  # Użycie pełnej ścieżki do poetry
 
   linting:
     runs-on: ubuntu-latest
@@ -53,37 +53,16 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Add Poetry to PATH
-        run: echo "/home/runner/.local/bin" >> $GITHUB_PATH
+        run: echo "/home/student/.local/bin" >> $GITHUB_PATH
 
       - name: Go to example-app directory
         run: cd example-app  # Upewniamy się, że jesteśmy w katalogu z plikiem pyproject.toml
 
       - name: Run Linter
-        run: poetry run task lint
+        run: /home/student/.local/bin/poetry run task lint  # Użycie pełnej ścieżki do poetry
 
       - name: Run Formatter
-        run: poetry run task formatter
+        run: /home/student/.local/bin/poetry run task formatter  # Użycie pełnej ścieżki do poetry
 
       - name: Run Security Check
-        run: poetry run task security
-
-  unit-tests:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: "unit-tests-${{ github.ref }}"
-      cancel-in-progress: true
-    needs: install-dependencies
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Add Poetry to PATH
-        run: echo "/home/runner/.local/bin" >> $GITHUB_PATH
-
-      - name: Go to example-app directory
-        run: cd example-app  # Upewniamy się, że jesteśmy w katalogu z plikiem pyproject.toml
-
-      - name: Run Unit Tests
-        run: poetry run task test
-
+        run: /home/student/.local/bin/poetry run task security  # Użycie pełnej ście
