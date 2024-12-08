@@ -1,3 +1,13 @@
+name: Python CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
   install_dependencies:
     runs-on: ubuntu-latest
@@ -15,9 +25,11 @@ jobs:
         python-version: '3.9'
 
     - name: Install Poetry
-      uses: abatilo/actions-poetry@v2
-      with:
-        poetry-version: 'latest'  # Możesz też wskazać wersję, np. 1.8.0
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "Poetry installed at: $HOME/.local/bin/poetry"
+        export PATH="$HOME/.local/bin:$PATH"
+        poetry --version  # Upewnij się, że Poetry jest zainstalowane
 
     - name: Cache Poetry dependencies
       uses: actions/cache@v3
@@ -28,8 +40,9 @@ jobs:
           ${{ runner.os }}-venv-
 
     - name: Install project dependencies
-      working-directory: ./example-app
-      run: poetry install --no-root
+      working-directory: ./example-app  # <-- Przechodzimy do katalogu projektu
+      run: |
+        poetry install --no-root
 
   static_analysis:
     runs-on: ubuntu-latest
@@ -48,7 +61,7 @@ jobs:
         python-version: '3.9'
 
     - name: Run linting
-      working-directory: ./example-app
+      working-directory: ./example-app  # <-- Przechodzimy do katalogu projektu
       run: poetry run task lint
 
     - name: Run formatter
@@ -58,3 +71,23 @@ jobs:
     - name: Run security checks
       working-directory: ./example-app
       run: poetry run task security
+
+  unit_tests:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: 'unit-tests'
+      cancel-in-progress: true
+    needs: install_dependencies
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Run unit tests
+      working-directory: ./example-app  # <-- Przechodzimy do katalogu projektu
+      run: poetry run task test
