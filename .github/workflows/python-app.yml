@@ -90,7 +90,7 @@ jobs:
       - name: Cache Poetry Dependencies
         uses: actions/cache@v3
         with:
-          path: /home/runner/work/iac-labs/iac-labs/example-app/.venv
+          path: /home/runner/work/iac-labs/example-app/.venv
           key: ${{ runner.os }}-poetry-dependencies-${{ hashFiles('**/example-app/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-poetry-dependencies-
