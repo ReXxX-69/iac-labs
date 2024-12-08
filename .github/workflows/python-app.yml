@@ -36,6 +36,7 @@ jobs:
           ${{ runner.os }}-venv-
 
     - name: Install project dependencies
+      working-directory: ./example-app
       run: poetry install --no-root
 
   static_analysis:
@@ -43,7 +44,7 @@ jobs:
     concurrency:
       group: 'static-analysis'
       cancel-in-progress: true
-    needs: install_dependencies  # To make sure install_dependencies completes before static_analysis
+    needs: install_dependencies
 
     steps:
     - name: Checkout code
@@ -55,12 +56,15 @@ jobs:
         python-version: '3.9'
 
     - name: Run linting
+      working-directory: ./example-app
       run: poetry run task lint
 
     - name: Run formatter
+      working-directory: ./example-app
       run: poetry run task formatter
 
     - name: Run security checks
+      working-directory: ./example-app
       run: poetry run task security
 
   unit_tests:
@@ -68,7 +72,7 @@ jobs:
     concurrency:
       group: 'unit-tests'
       cancel-in-progress: true
-    needs: install_dependencies  # Ensure dependencies are installed before running tests
+    needs: install_dependencies
 
     steps:
     - name: Checkout code
@@ -80,4 +84,5 @@ jobs:
         python-version: '3.9'
 
     - name: Run unit tests
+      working-directory: ./example-app
       run: poetry run task test
