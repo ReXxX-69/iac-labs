@@ -48,19 +48,14 @@ jobs:
           echo "Checking if poetry is installed..."
           which poetry  # Sprawdzenie, czy poetry jest w systemie
           poetry --version  # Sprawdzenie wersji poetry
-          cd example-app  # Przechodzimy do katalogu example-app
-          $HOME/.local/bin/poetry install --no-root  # Użycie pełnej ścieżki do poetry
 
       # Krok 6: Uruchomienie testów jednostkowych
       - name: Run Unit Tests
         run: |
-          cd example-app  # Upewniamy się, że jesteśmy w katalogu example-app
-          $HOME/.local/bin/poetry run task test  # Uruchomienie testów jednostkowych
 
       # Krok 7: Linter, Formatter, Security
       - name: Run Static Code Analysis (Linter, Formatter, Security)
         run: |
-          cd example-app  # Upewniamy się, że jesteśmy w katalogu example-app
           $HOME/.local/bin/poetry run task lint  # Uruchomienie testów statycznych kodu
           $HOME/.local/bin/poetry run task formatter  # Uruchomienie formatera kodu
           $HOME/.local/bin/poetry run task security  # Uruchomienie testów bezpieczeństwa
