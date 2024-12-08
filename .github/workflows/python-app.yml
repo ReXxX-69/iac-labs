@@ -9,89 +9,80 @@ on:
       - main
 
 jobs:
-  install_dependencies:
+  install-dependencies:
     runs-on: ubuntu-latest
     concurrency:
-      group: 'install-dependencies'
-      cancel-in-progress: true
+      group: "install-dependencies-${{ github.ref }}"
+      cancel-in-progress: true  # Zapewnia, że tylko jedno zadanie w danym czasie będzie aktywne
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Check out code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Add Poetry to PATH
+        run: echo "/home/student/.local/bin" >> $GITHUB_PATH  # Dodajemy Poetry do PATH
 
-    - name: Install Poetry 1.8.5
-      run: |
-        curl -sSL https://install.python-poetry.org | python3 -
-        echo "Poetry installed at: $HOME/.local/bin/poetry"
-        echo "/home/student/.local/bin" >> $GITHUB_PATH
-        /home/student/.local/bin/poetry --version
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -  # Instalacja Poetry
+          echo "/home/student/.local/bin" >> $GITHUB_PATH  # Upewniamy się, że jest dodane do PATH
 
-    - name: Cache Poetry dependencies
-      uses: actions/cache@v3
-      with:
-        path: ./example-app/.venv
-        key: ${{ runner.os }}-venv-${{ hashFiles('**/pyproject.toml') }}
-        restore-keys: |
-          ${{ runner.os }}-venv-
+      - name: Install project dependencies
+        run: poetry install --no-root  # Instalacja zależności projektu
 
-    - name: Install project dependencies
-      working-directory: ./example-app
-      run: |
-        $HOME/.local/bin/poetry install --no-root
-
-  static_analysis:
+  linting:
     runs-on: ubuntu-latest
     concurrency:
-      group: 'static-analysis'
-      cancel-in-progress: true
-    needs: install_dependencies
+      group: "linting-${{ github.ref }}"
+      cancel-in-progress: true  # Zapewnia, że tylko jedno zadanie w danym czasie będzie aktywne
+    needs: install-dependencies  # To zadanie zależy od zadania instalacji zależności
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Check out code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Add Poetry to PATH
+        run: echo "/home/student/.local/bin" >> $GITHUB_PATH  # Dodajemy Poetry do PATH
 
-    - name: Run linting
-      working-directory: ./example-app
-      run: |
-        $HOME/.local/bin/poetry run task lint
+      - name: Run Linter
+        run: poetry run task lint  # Uruchomienie lintera
 
-    - name: Run formatter
-      working-directory: ./example-app
-      run: |
-        $HOME/.local/bin/poetry run task formatter
+      - name: Run Formatter
+        run: poetry run task formatter  # Uruchomienie formatera
 
-    - name: Run security checks
-      working-directory: ./example-app
-      run: |
-        $HOME/.local/bin/poetry run task security
+      - name: Run Security Check
+        run: poetry run task security  # Uruchomienie testów bezpieczeństwa
 
-  unit_tests:
+  unit-tests:
     runs-on: ubuntu-latest
     concurrency:
-      group: 'unit-tests'
-      cancel-in-progress: true
-    needs: install_dependencies
+      group: "unit-tests-${{ github.ref }}"
+      cancel-in-progress: true  # Zapewnia, że tylko jedno zadanie w danym czasie będzie aktywne
+    needs: install-dependencies  # To zadanie zależy od zadania instalacji zależności
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Check out code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Add Poetry to PATH
+        run: echo "/home/student/.local/bin" >> $GITHUB_PATH  # Dodajemy Poetry do PATH
 
-    - name: Run unit tests
-      working-directory: ./example-app
-      run: |
-        $HOME/.local/bin/poetry run task test
+      - name: Run Unit Tests
+        run: poetry run task test  # Uruchomienie testów jednostkowych
+
+  cache:
+    runs-on: ubuntu-latest
+    needs: install-dependencies  # To zadanie zależy od zadania instalacji zależności
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Cache Poetry Dependencies
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/work/<your-repository>/<your-repository>/.venv  # Zastąp ścieżkę odpowiednio do Twojego repo
+          key: ${{ runner.os }}-poetry-dependencies-${{ hashFiles('**/poetry.lock') }}  # Generowanie klucza cache na podstawie pliku poetry.lock
+          restore-keys: |
+            ${{ runner.os }}-poetry-dependencies-
+
