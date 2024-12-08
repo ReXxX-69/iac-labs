@@ -32,7 +32,7 @@ jobs:
           which poetry  # Sprawdzi, gdzie jest zainstalowane poetry
           poetry --version  # Wyświetli wersję zainstalowanego poetry
 
-      # Krok 4: Cache zależności Poetry
+      # Krok 4: Cache Poetry Dependencies
       - name: Cache Poetry Dependencies
         uses: actions/cache@v3
         with:
@@ -41,22 +41,29 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-poetry-dependencies-
 
-      # Krok 5: Instalacja zależności projektu
+      # Krok 5: Przejście do katalogu example-app
+      - name: Change to example-app directory
+        run: cd example-app
+
+      # Krok 6: Instalacja zależności projektu
       - name: Install Project Dependencies
         run: |
           echo "Checking if poetry is installed..."
           which poetry  # Sprawdzenie, czy poetry jest w systemie
           poetry --version  # Sprawdzenie wersji poetry
+          cd example-app  # Przechodzimy do katalogu example-app
           $HOME/.local/bin/poetry install --no-root  # Użycie pełnej ścieżki do poetry
 
-      # Krok 6: Uruchomienie testów jednostkowych
+      # Krok 7: Uruchomienie testów jednostkowych
       - name: Run Unit Tests
         run: |
+          cd example-app  # Upewniamy się, że jesteśmy w katalogu example-app
           $HOME/.local/bin/poetry run task test  # Uruchomienie testów jednostkowych
 
-      # Krok 7: Linter, Formatter, Security
+      # Krok 8: Linter, Formatter, Security
       - name: Run Static Code Analysis (Linter, Formatter, Security)
         run: |
+          cd example-app  # Upewniamy się, że jesteśmy w katalogu example-app
           $HOME/.local/bin/poetry run task lint  # Uruchomienie testów statycznych kodu
           $HOME/.local/bin/poetry run task formatter  # Uruchomienie formatera kodu
           $HOME/.local/bin/poetry run task security  # Uruchomienie testów bezpieczeństwa
