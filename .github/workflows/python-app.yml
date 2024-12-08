@@ -12,12 +12,12 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-latest, windows-latest]  # Testowanie na Ubuntu i Windows
+    runs-on: ${{ matrix.os }}  # Wybór systemu operacyjnego na podstawie matrix
     defaults:
       run:
         working-directory: ./example-app
-        shell: bash
+        shell: bash  # Użycie powłoki bash na wszystkich systemach, także Windows
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.11
@@ -25,12 +25,19 @@ jobs:
       with:
         python-version: "3.11"
     - name: Install Poetry
-      uses: snok/install-poetry@v1.3.4
+      uses: snok/install-poetry@v1.3.4  # Instalacja Poetry
     - name: Install Poetry Deps
-      run: poetry install --no-root
+      run: poetry install --no-root  # Instalacja zależności
     - name: Cache build venv
       id: cached-poetry-dependencies
       uses: actions/cache@v3
       with:
-        path: /home/runner/work/iac-labs/iac-labs/example-app/.venv
-        key: ${{ runner.os }}-venv
+        path: /home/runner/work/iac-labs/iac-labs/example-app/.venv  # Ścieżka do zależności
+        key: ${{ runner.os }}-venv  # Klucz cache, aby pamiętać zależności
+    - name: Run tests
+      run: poetry run task test  # Uruchomienie testów jednostkowych
+    - name: Run Static Code Analysis (Linter, Formatter, Security)
+      run: |
+        poetry run task lint  # Uruchomienie testów statycznych kodu
+        poetry run task formatter  # Uruchomienie formatera kodu
+        poetry run task security  # Uruchomienie testów bezpieczeństwa
