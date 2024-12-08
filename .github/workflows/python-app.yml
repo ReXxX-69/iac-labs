@@ -34,29 +34,3 @@ jobs:
       with:
         path: /home/runner/work/iac-labs/iac-labs/example-app/.venv
         key: ${{ runner.os }}-venv
-
-      # Krok 2: Instalacja Poetry
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH  # Dodajemy Poetry do ścieżki
-
-      # Krok 3: Cache Poetry Dependencies
-      - name: Cache Poetry Dependencies
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/work/iac-labs/iac-labs/example-app/.venv
-          key: ${{ runner.os }}-poetry-dependencies-${{ hashFiles('example-app/poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-dependencies-|
-
-      # Krok 4: Uruchomienie testów jednostkowych
-      - name: Run Unit Tests
-        run: |
-
-      # Krok 5: Linter, Formatter, Security
-      - name: Run Static Code Analysis (Linter, Formatter, Security)
-        run: |
-          $HOME/.local/bin/poetry run task lint  # Uruchomienie testów statycznych kodu
-          $HOME/.local/bin/poetry run task formatter  # Uruchomienie formatera kodu
-          $HOME/.local/bin/poetry run task security  # Uruchomienie testów bezpieczeństwa
