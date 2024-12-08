@@ -38,20 +38,13 @@ jobs:
           path: /home/runner/work/iac-labs/iac-labs/example-app/.venv
           key: ${{ runner.os }}-poetry-dependencies-${{ hashFiles('example-app/poetry.lock') }}
           restore-keys: |
-            ${{ runner.os }}-poetry-dependencies-
+            ${{ runner.os }}-poetry-dependencies-|
 
-      # Krok 4: Instalacja zależności projektu
-      - name: Install Project Dependencies
-        run: |
-          echo "Checking if poetry is installed..."
-          which poetry  # Sprawdzenie, czy poetry jest w systemie
-          poetry --version  # Sprawdzenie wersji poetry
-
-      # Krok 5: Uruchomienie testów jednostkowych
+      # Krok 4: Uruchomienie testów jednostkowych
       - name: Run Unit Tests
         run: |
 
-      # Krok 6: Linter, Formatter, Security
+      # Krok 5: Linter, Formatter, Security
       - name: Run Static Code Analysis (Linter, Formatter, Security)
         run: |
           $HOME/.local/bin/poetry run task lint  # Uruchomienie testów statycznych kodu
