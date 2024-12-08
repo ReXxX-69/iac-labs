@@ -9,16 +9,17 @@ on:
       - main
 
 jobs:
-  install-dependencies:
-    runs-on: ubuntu-latest
-    concurrency:
-      group: "install-dependencies-${{ github.ref }}"
-      cancel-in-progress: true
-
+  build:
+    runs-on: Ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./example-app
     steps:
-      # Krok 1: Checkout kodu z repozytorium
-      - name: Check out code
+      - uses: actions/checkout@v4
+      - name: set up python3.11
         uses: actions/checkout@v3
+        with:
+          python-version: "3.11"
 
       # Krok 2: Instalacja Poetry
       - name: Install Poetry
