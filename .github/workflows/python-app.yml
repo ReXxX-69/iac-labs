@@ -1,3 +1,13 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
   install-dependencies:
     runs-on: ubuntu-latest
@@ -6,14 +16,23 @@ jobs:
       cancel-in-progress: true
 
     steps:
+      # Krok 1: Checkout kodu z repozytorium
       - name: Check out code
         uses: actions/checkout@v3
 
+      # Krok 2: Instalacja Poetry
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH  # Dodajemy ścieżkę do poetry do zmiennej PATH
+          echo "$HOME/.local/bin" >> $GITHUB_PATH  # Dodajemy Poetry do ścieżki
 
+      # Krok 3: Sprawdzenie instalacji Poetry
+      - name: Check Poetry Installation
+        run: |
+          which poetry  # Sprawdzi, gdzie jest zainstalowane poetry
+          poetry --version  # Wyświetli wersję zainstalowanego poetry
+
+      # Krok 4: Cache zależności Poetry
       - name: Cache Poetry Dependencies
         uses: actions/cache@v3
         with:
@@ -22,8 +41,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-poetry-dependencies-
 
+      # Krok 5: Instalacja zależności projektu
       - name: Install Project Dependencies
         run: |
           echo "Checking if poetry is installed..."
-          which poetry  # Sprawdź, czy poetry jest w systemie
-          $HOME/.local/bin/poetry install --no-root  # Użyj pełnej ścieżki do poetry
+          which poetry  # Sprawdzenie, czy poetry jest w systemie
+          poetry --version  # Sprawdzenie wersji poetry
+          $HOME/.local/bin/poetry install --no-root  # Użycie pełnej ścieżki do poetry
+
+      # Krok 6: Uruchomienie testów jednostkowych
+      - name: Run Unit Tests
+        run: |
+          $HOME/.local/bin/poetry run task test  # Uruchomienie testów jednostkowych
+
+      # Krok 7: Linter, Formatter, Security
+      - name: Run Static Code Analysis (Linter, Formatter, Security)
+        run: |
+          $HOME/.local/bin/poetry run task lint  # Uruchomienie testów statycznych kodu
+          $HOME/.local/bin/poetry run task formatter  # Uruchomienie formatera kodu
+          $HOME/.local/bin/poetry run task security  # Uruchomienie testów bezpieczeństwa
