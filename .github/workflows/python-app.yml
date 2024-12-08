@@ -46,7 +46,7 @@ jobs:
     concurrency:
       group: "linting-${{ github.ref }}"
       cancel-in-progress: true
-    needs: install-dependencies
+    needs: install-dependencies  # Czeka na zakończenie joba "install-dependencies"
 
     steps:
       - name: Check out code
@@ -65,4 +65,24 @@ jobs:
         run: /home/student/.local/bin/poetry run task formatter  # Użycie pełnej ścieżki do poetry
 
       - name: Run Security Check
-        run: /home/student/.local/bin/poetry run task security  # Użycie pełnej ście
+        run: /home/student/.local/bin/poetry run task security  # Użycie pełnej ścieżki do poetry
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: "unit-tests-${{ github.ref }}"
+      cancel-in-progress: true
+    needs: install-dependencies  # Czeka na zakończenie joba "install-dependencies"
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Add Poetry to PATH
+        run: echo "/home/student/.local/bin" >> $GITHUB_PATH
+
+      - name: Go to example-app directory
+        run: cd example-app  # Upewniamy się, że jesteśmy w katalogu z plikiem pyproject.toml
+
+      - name: Run Unit Tests
+        run: /home/student/.local/bin/poetry run task test  # Użycie pełnej ścieżki do poetry
