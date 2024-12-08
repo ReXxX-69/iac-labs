@@ -31,13 +31,7 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH  # Dodajemy Poetry do ścieżki
 
-      # Krok 3: Sprawdzenie instalacji Poetry
-      - name: Check Poetry Installation
-        run: |
-          which poetry  # Sprawdzi, gdzie jest zainstalowane poetry
-          poetry --version  # Wyświetli wersję zainstalowanego poetry
-
-      # Krok 4: Cache Poetry Dependencies
+      # Krok 3: Cache Poetry Dependencies
       - name: Cache Poetry Dependencies
         uses: actions/cache@v3
         with:
@@ -46,18 +40,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-poetry-dependencies-
 
-      # Krok 5: Instalacja zależności projektu
+      # Krok 4: Instalacja zależności projektu
       - name: Install Project Dependencies
         run: |
           echo "Checking if poetry is installed..."
           which poetry  # Sprawdzenie, czy poetry jest w systemie
           poetry --version  # Sprawdzenie wersji poetry
 
-      # Krok 6: Uruchomienie testów jednostkowych
+      # Krok 5: Uruchomienie testów jednostkowych
       - name: Run Unit Tests
         run: |
 
-      # Krok 7: Linter, Formatter, Security
+      # Krok 6: Linter, Formatter, Security
       - name: Run Static Code Analysis (Linter, Formatter, Security)
         run: |
           $HOME/.local/bin/poetry run task lint  # Uruchomienie testów statycznych kodu
