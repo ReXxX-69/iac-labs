@@ -28,8 +28,8 @@ jobs:
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
         echo "Poetry installed at: $HOME/.local/bin/poetry"
-        export PATH="$HOME/.local/bin:$PATH"
-        poetry --version  # Upewnij się, że Poetry jest zainstalowane
+        export PATH="$HOME/.local/bin:$PATH"  # Dodajemy Poetry do PATH
+        poetry --version  # Sprawdzamy, czy Poetry jest dostępne
 
     - name: Cache Poetry dependencies
       uses: actions/cache@v3
@@ -62,15 +62,21 @@ jobs:
 
     - name: Run linting
       working-directory: ./example-app  # <-- Przechodzimy do katalogu projektu
-      run: poetry run task lint
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"  # Dodajemy Poetry do PATH przed jego użyciem
+        poetry run task lint
 
     - name: Run formatter
       working-directory: ./example-app
-      run: poetry run task formatter
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"  # Dodajemy Poetry do PATH przed jego użyciem
+        poetry run task formatter
 
     - name: Run security checks
       working-directory: ./example-app
-      run: poetry run task security
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"  # Dodajemy Poetry do PATH przed jego użyciem
+        poetry run task security
 
   unit_tests:
     runs-on: ubuntu-latest
@@ -90,4 +96,6 @@ jobs:
 
     - name: Run unit tests
       working-directory: ./example-app  # <-- Przechodzimy do katalogu projektu
-      run: poetry run task test
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"  # Dodajemy Poetry do PATH przed jego użyciem
+        poetry run task test
