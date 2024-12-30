@@ -19,26 +19,6 @@ jobs:
         working-directory: ./example-app
         shell: bash  # Użycie powłoki bash na wszystkich systemach, także Windows
     steps:
-    jobs:
-    build:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-        uses: actions/checkout@v4
-
-    - name: Cache Node.js modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-    - name: Install dependencies
-        run: npm install
-
-    - name: Build project
-        run: npm run build
     - uses: actions/checkout@v4
     - name: Set up Python 3.11
       uses: actions/setup-python@v3
